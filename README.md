@@ -22,27 +22,39 @@ $ aswitch ls
 Saved accounts: 4
 [1] claude-code/work
     Email: alice@example.com
-    Quota: remaining=42%, reset=04-29 15:00
-    Monthly Usage: req 9.0k | in 101.1k | out 8.3M
-    Weekly Usage : req 1.7k | in  15.2k | out 2.0M
+    Quota: remaining=67%, reset=04-28 14:50
+    Monthly Usage: req 9k | in 101.1k | out 8.3M
+    Weekly Usage : req 1.7k | in 15.2k | out 2M
+    Next Refresh : 04-28 10:14
     Active       : yes
 
-[2] codex/personal
+[2] codex/work
+    Email: alice@example.com
+    Quota: remaining=0%, reset=04-29 08:49
+    Monthly Usage: req 7k | in 684.5M | out 5.6M
+    Weekly Usage : req 3.4k | in 320.5M | out 3.3M
+    Next Refresh : 04-28 10:14
+    Active       : -
+
+[3] codex/personal
     Email: alice@gmail.com
     Quota: remaining=14%, reset=04-29 18:35
-    Monthly Usage: req 7.0k | in 684.5M | out 5.6M
-    Active       : -
+    Monthly Usage: req 7k | in 684.5M | out 5.6M
+    Weekly Usage : req 3.4k | in 320.5M | out 3.3M
+    Next Refresh : 04-28 10:14
+    Active       : yes
 
-[3] gemini/default
+[4] gemini/default
     Email: alice@example.com
-    Active       : -
+    Quota: -
+    Monthly Usage: req 11 | in 271.6k | out 885
+    Weekly Usage : req 11 | in 271.6k | out 885
+    Next Refresh : 04-28 10:14
+    Active       : yes
 
-[4] opencode/work-setup
-    Providers: anthropic, openai, google
-    Active       : -
-
-$ aswitch use codex/personal
-Switched codex → personal (shell scope). Restart the codex client to apply.
+$ aswitch use codex/personal --scope global
+Switched to codex/personal
+Restart the corresponding client for the new account to take effect.
 ```
 
 ```text
@@ -51,10 +63,19 @@ registry version: 1
 last switch: 2026-04-26 20:33
 
 PLUGIN           STATUS   SOURCE   ACTIVE           COUNT    LAST_USED
-claude-code      ok       user     work             2        2026-04-26 06:55
+claude-code      ok       user     work             1        2026-04-26 06:55
 codex            ok       user     personal         2        2026-04-26 20:33
 gemini           ok       user     default          1        2026-04-24 20:55
-opencode         ok       user     work-setup       1        2026-04-25 09:10
+opencode         ok       user     -                0        -
+```
+
+```text
+$ aswitch ls --view current
+PLUGIN           ALIAS            EMAIL                    ORG              PLAN     SCOPE
+claude-code      work             alice@example.com        Alice's Org      -        global
+codex            personal         alice@gmail.com          -                -        global
+gemini           default          alice@example.com        -                -        global
+opencode         -                -                        -                -        -
 ```
 
 ---
