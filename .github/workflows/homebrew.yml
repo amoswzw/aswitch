@@ -1,0 +1,32 @@
+name: Bump Homebrew formula
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to bump the formula to (e.g. v0.2.0). Must already exist on this repo.'
+        required: true
+
+jobs:
+  bump:
+    name: Update amoswzw/homebrew-tap aswitch
+    runs-on: ubuntu-latest
+    steps:
+      - name: Bump aswitch.rb
+        uses: mislav/bump-homebrew-formula-action@v3
+        with:
+          formula-name: aswitch
+          formula-path: Formula/aswitch.rb
+          homebrew-tap: amoswzw/homebrew-tap
+          base-branch: main
+          tag-name: ${{ inputs.tag || github.ref_name }}
+          download-url: https://github.com/amoswzw/aswitch/archive/refs/tags/${{ inputs.tag || github.ref_name }}.tar.gz
+          commit-message: |
+            aswitch {{version}}
+
+            Updated from {{formulaName}} release {{version}}.
+        env:
+          COMMITTER_TOKEN: ${{ secrets.HOMEBREW_TAP_TOKEN }}
