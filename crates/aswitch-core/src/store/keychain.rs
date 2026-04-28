@@ -447,6 +447,7 @@ mod tests {
     #[cfg(target_os = "macos")]
     static TEST_KEYCHAIN_COUNTER: AtomicU64 = AtomicU64::new(0);
 
+    #[cfg(not(target_os = "linux"))]
     #[test]
     fn linux_backend_reports_unsupported() {
         let store = KeychainStore::linux(
