@@ -1,0 +1,68 @@
+id = "codex"
+display_name = "OpenAI Codex CLI"
+version = "1.0.0"
+author = "aswitch official"
+description = "OpenAI Codex CLI / VS Code extension account switcher"
+platforms = ["macos", "linux"]
+
+[credential_store]
+kind = "file"
+path = "~/.codex/auth.json"
+permissions = 0o600
+
+[session_activation]
+env_var = "CODEX_HOME"
+default_home = "~/.codex"
+shared_paths = ["config.toml", "skills", "rules", "memories", "vendor_imports", "installation_id", "version.json"]
+
+# Codex can be configured to store credentials in a keyring; this plugin only supports the
+# default file-based mode. If users set cli_auth_credentials_store = "keyring", they must switch
+# back to "file" for this plugin to work. aswitch reads ~/.codex/config.toml and emits a warning.
+
+# No aux_files: Codex state such as sessions and rollout logs does not switch with the account.
+
+[[identity_extract]]
+field = "email"
+source = "jwt_claim"
+jwt_from = "json_value"
+jwt_json_pointer = "tokens.id_token"
+claim_pointer = "email"
+
+[[identity_extract]]
+field = "chatgpt_account_id"
+source = "jwt_claim"
+jwt_from = "json_value"
+jwt_json_pointer = "tokens.id_token"
+claim_pointer = "https://api.openai.com/auth.chatgpt_account_id"
+
+[[identity_extract]]
+field = "chatgpt_user_id"
+source = "jwt_claim"
+jwt_from = "json_value"
+jwt_json_pointer = "tokens.id_token"
+claim_pointer = "https://api.openai.com/auth.chatgpt_user_id"
+
+[[identity_extract]]
+field = "plan"
+source = "jwt_claim"
+jwt_from = "json_value"
+jwt_json_pointer = "tokens.id_token"
+claim_pointer = "https://api.openai.com/auth.chatgpt_plan_type"
+
+[login]
+cmd = ["codex", "login"]
+ready_marker_kind = "file"
+ready_marker_path = "~/.codex/auth.json"
+ready_marker_timeout_s = 300
+
+[[usage_source]]
+kind = "local_log"
+path = "~/.codex/sessions/**/*.jsonl"
+format = "jsonl"
+timestamp_pointer = "timestamp"
+record_filter = "type == 'event_msg' && payload.type == 'token_count' && payload.info != null"
+metric_map = { requests = "$count", tokens_in = "payload.info.last_token_usage.input_tokens", tokens_out = "payload.info.last_token_usage.output_tokens", cached_input_tokens = "payload.info.last_token_usage.cached_input_tokens", reasoning_output_tokens = "payload.info.last_token_usage.reasoning_output_tokens" }
+default_window = "current_month"
+
+# OpenAI /v1/organization/usage also requires an admin key; ChatGPT Plus/Pro subscriptions do not
+# have an equivalent personal usage API.

@@ -1,0 +1,22 @@
+[workspace]
+members = [
+    "crates/aswitch-core",
+    "crates/aswitch-cli",
+]
+default-members = ["crates/aswitch-cli"]
+resolver = "2"
+
+[workspace.package]
+edition = "2021"
+license = "MIT"
+rust-version = "1.81"
+version = "0.1.0"
+authors = ["aswitch contributors"]
+keywords = ["cli", "switch", "ai", "agent", "credentials"]
+categories = ["command-line-utilities", "development-tools"]
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+panic = "abort"
+strip = true

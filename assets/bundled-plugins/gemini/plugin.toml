@@ -1,0 +1,59 @@
+id = "gemini"
+display_name = "Gemini CLI"
+version = "1.0.0"
+author = "aswitch official"
+description = "Google Gemini CLI account switcher"
+platforms = ["macos", "linux"]
+
+[credential_store]
+kind = "file"
+path = "~/.gemini/oauth_creds.json"
+permissions = 0o600
+
+[session_activation]
+env_var = "GEMINI_CLI_HOME"
+default_home = "~"
+
+[[aux_files]]
+path = "~/.gemini/.env"
+required = false
+kind = "file"
+
+[[aux_files]]
+path = "~/.gemini/settings.json"
+required = false
+kind = "file"
+
+[[aux_files]]
+path = "~/.gemini/google_accounts.json"
+required = false
+kind = "file"
+
+[[identity_extract]]
+field = "email"
+source = "json_file"
+json_file_path = "~/.gemini/google_accounts.json"
+json_pointer = "active"
+fallback_source = "jwt_claim"
+fallback_jwt_from = "json_value"
+fallback_jwt_json_pointer = "id_token"
+fallback_claim_pointer = "email"
+
+[login]
+cmd = ["gemini"]
+ready_marker_kind = "file"
+ready_marker_path = "~/.gemini/oauth_creds.json"
+ready_marker_timeout_s = 300
+
+[[usage_source]]
+kind = "local_log"
+path = "~/.gemini/tmp/**/chats/*.jsonl"
+format = "jsonl"
+timestamp_pointer = "timestamp"
+record_filter = "type == 'gemini' && toolCalls == null"
+metric_map = { requests = "$count", tokens_in = "tokens.input", tokens_out = "tokens.output", cached_input_tokens = "tokens.cached", reasoning_output_tokens = "tokens.thoughts", tool_tokens = "tokens.tool" }
+default_window = "current_month"
+
+# provider_api is only useful for users who authenticate with a Google Cloud API key
+# (Cloud Monitoring / Metering API). Personal OAuth (for example the free Code Assist tier)
+# does not expose a personal quota API, so no provider_api source is declared by default.

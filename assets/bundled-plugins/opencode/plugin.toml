@@ -1,0 +1,39 @@
+id = "opencode"
+display_name = "opencode"
+version = "1.0.0"
+author = "aswitch official"
+description = "opencode (sst/opencode) multi-provider agent account switcher"
+platforms = ["macos", "linux"]
+
+[credential_store]
+kind = "file"
+path = "${env:OPENCODE_AUTH_JSON:-~/.local/share/opencode/auth.json}"
+permissions = 0o600
+
+[[aux_files]]
+path = "~/.config/opencode/opencode.json"
+required = false
+kind = "file"
+
+[[identity_extract]]
+field = "email"
+source = "jwt_claim"
+jwt_from = "json_value"
+jwt_json_pointer = "anthropic.access"
+claim_pointer = "email"
+
+[[identity_extract]]
+field = "providers"
+source = "json_top_keys"
+json_top_keys_from = "json_value"
+
+[login]
+cmd = ["opencode", "auth", "login"]
+ready_marker_kind = "file"
+ready_marker_path = "~/.local/share/opencode/auth.json"
+ready_marker_timeout_s = 300
+
+# Usage: opencode >= 1.0 moved session data from JSON files to SQLite
+# (~/.local/share/opencode/opencode.db). The current manifest primitives only support jsonl /
+# json / regex_lines and cannot read SQLite, so the MVP does not declare a usage_source for
+# opencode. Users who need usage data should run `opencode stats`, which reads the same database.

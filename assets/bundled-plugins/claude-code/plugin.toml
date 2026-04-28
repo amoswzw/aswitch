@@ -1,0 +1,61 @@
+id = "claude-code"
+display_name = "Claude Code"
+version = "1.0.0"
+author = "aswitch official"
+description = "Anthropic Claude Code CLI / VS Code extension account switcher"
+platforms = ["macos", "linux"]
+
+[credential_store]
+kind = "keychain"
+# macOS: security find-generic-password -s "Claude Code-credentials" -w
+macos_service = "Claude Code-credentials"
+macos_account = "${env:USER}"
+# Linux: Claude Code uses a file-based store on Linux; this manifest provides a fallback path so
+# the core can downgrade to file mode.
+linux_fallback_kind = "file"
+linux_fallback_path = "~/.claude/.credentials.json"
+linux_fallback_permissions = 0o600
+
+[[aux_files]]
+path = "~/.claude/.claude.json"
+required = false
+kind = "file"
+
+[[identity_extract]]
+field = "email"
+source = "json_file"
+json_file_path = "~/.claude/.claude.json"
+json_pointer = "oauthAccount.emailAddress"
+fallback_source = "json_file"
+fallback_json_file_path = "~/.claude/.claude.json"
+fallback_json_pointer = "userEmail"
+
+[[identity_extract]]
+field = "org_name"
+source = "json_file"
+json_file_path = "~/.claude/.claude.json"
+json_pointer = "oauthAccount.organizationName"
+
+[[identity_extract]]
+field = "org_uuid"
+source = "json_file"
+json_file_path = "~/.claude/.claude.json"
+json_pointer = "oauthAccount.organizationUuid"
+
+[login]
+cmd = ["claude", "login"]
+ready_marker_kind = "keychain"
+ready_marker_timeout_s = 300
+
+[[usage_source]]
+kind = "local_log"
+path = "~/.claude/projects/**/*.jsonl"
+format = "jsonl"
+timestamp_pointer = "timestamp"
+record_filter = "type == 'assistant'"
+metric_map = { requests = "$count", tokens_in = "message.usage.input_tokens", tokens_out = "message.usage.output_tokens", cache_read_tokens = "message.usage.cache_read_input_tokens", cache_creation_tokens = "message.usage.cache_creation_input_tokens" }
+default_window = "current_month"
+
+# provider_api: Anthropic Pro/Max subscriptions do not expose a public personal usage API. Only
+# enterprise Console admin API keys can call /v1/organizations/<uuid>/usage_report. This plugin
+# does not declare a provider_api source by default; users with an admin key can fork the manifest.

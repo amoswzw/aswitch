@@ -1,0 +1,30 @@
+[package]
+name = "aswitch-cli"
+description = "Command-line and TUI for aswitch: atomic switching between AI agent accounts (Claude Code, Codex, Gemini, opencode, ...)."
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+keywords.workspace = true
+categories.workspace = true
+readme = "../../README.md"
+build = "build.rs"
+
+[[bin]]
+name = "aswitch"
+path = "src/main.rs"
+
+[dependencies]
+anyhow = "1"
+aswitch-core = { path = "../aswitch-core" }
+chrono = "0.4"
+clap = { version = "4", features = ["derive"] }
+crossterm = "0.28"
+ratatui = "0.28"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+
+[dev-dependencies]
+tempfile = "3"
